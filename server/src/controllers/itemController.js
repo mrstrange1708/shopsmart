@@ -1,21 +1,22 @@
 const Item = require('../models/itemModel');
-const { v4: uuidv4 } = require('uuid');
 
 // Get all items
-exports.getAllItems = (req, res) => {
+exports.getAllItems = async (req, res) => {
     try {
         const { search } = req.query;
-        let items = Item.getAll();
+        let query = {};
 
         if (search) {
-            const query = search.toLowerCase();
-            items = items.filter(item =>
-                item.name.toLowerCase().includes(query) ||
-                item.description.toLowerCase().includes(query) ||
-                item.category.toLowerCase().includes(query)
-            );
+            query = {
+                $or: [
+                    { name: { $regex: search, $options: 'i' } },
+                    { description: { $regex: search, $options: 'i' } },
+                    { category: { $regex: search, $options: 'i' } }
+                ]
+            };
         }
 
+        const items = await Item.find(query);
         res.status(200).json(items);
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving items', error: error.message });
@@ -23,9 +24,9 @@ exports.getAllItems = (req, res) => {
 };
 
 // Get item by ID
-exports.getItemById = (req, res) => {
+exports.getItemById = async (req, res) => {
     try {
-        const item = Item.getById(req.params.id);
+        const item = await Item.findById(req.params.id);
         if (!item) {
             return res.status(404).json({ message: 'Item not found' });
         }
@@ -36,7 +37,7 @@ exports.getItemById = (req, res) => {
 };
 
 // Create new item
-exports.createItem = (req, res) => {
+exports.createItem = async (req, res) => {
     try {
         const { name, price, description, category } = req.body;
 
@@ -44,45 +45,47 @@ exports.createItem = (req, res) => {
             return res.status(400).json({ message: 'Name and price are required' });
         }
 
-        const newItem = {
-            id: uuidv4(),
+        const item = await Item.create({
             name,
             price: parseFloat(price),
             description: description || '',
             category: category || 'Uncategorized'
-        };
+        });
 
-        const createdItem = Item.create(newItem);
-        res.status(201).json(createdItem);
+        res.status(201).json(item);
     } catch (error) {
         res.status(500).json({ message: 'Error creating item', error: error.message });
     }
 };
 
 // Update item
-exports.updateItem = (req, res) => {
+exports.updateItem = async (req, res) => {
     try {
-        const { name, price, description, category } = req.body;
-        const updatedItem = Item.update(req.params.id, { name, price, description, category });
+        const item = await Item.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+            runValidators: true
+        });
 
-        if (!updatedItem) {
+        if (!item) {
             return res.status(404).json({ message: 'Item not found' });
         }
 
-        res.status(200).json(updatedItem);
+        res.status(200).json(item);
     } catch (error) {
         res.status(500).json({ message: 'Error updating item', error: error.message });
     }
 };
 
 // Delete item
-exports.deleteItem = (req, res) => {
+exports.deleteItem = async (req, res) => {
     try {
-        const deletedItem = Item.delete(req.params.id);
-        if (!deletedItem) {
+        const item = await Item.findByIdAndDelete(req.params.id);
+
+        if (!item) {
             return res.status(404).json({ message: 'Item not found' });
         }
-        res.status(204).send(); // 204 No Content
+
+        res.status(204).send();
     } catch (error) {
         res.status(500).json({ message: 'Error deleting item', error: error.message });
     }
