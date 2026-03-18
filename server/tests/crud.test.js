@@ -5,7 +5,9 @@ const Item = require('../src/models/itemModel'); // Adjust path to itemModel.js
 
 // Connect to a test database before running tests
 beforeAll(async () => {
-    await mongoose.connect(process.env.MONGO_URI_TEST || 'mongodb://127.0.0.1:27017/shopsmart_test');
+    await mongoose.connect(
+        process.env.MONGO_URI_TEST || 'mongodb://127.0.0.1:27017/shopsmart_test'
+    );
 });
 
 // Clear database before each test
@@ -19,7 +21,6 @@ afterAll(async () => {
 });
 
 describe('Shop Smart API CRUD Operations', () => {
-
     // 1. Create (POST)
     describe('POST /api/items', () => {
         it('should create a new item successfully', async () => {
@@ -27,12 +28,10 @@ describe('Shop Smart API CRUD Operations', () => {
                 name: 'Test Product',
                 price: 99.99,
                 description: 'A product for testing',
-                category: 'Testing'
+                category: 'Testing',
             };
 
-            const res = await request(app)
-                .post('/api/items')
-                .send(newItem);
+            const res = await request(app).post('/api/items').send(newItem);
 
             expect(res.statusCode).toBe(201);
             expect(res.body.name).toBe(newItem.name);
@@ -41,9 +40,7 @@ describe('Shop Smart API CRUD Operations', () => {
         });
 
         it('should fail to create item without required fields', async () => {
-            const res = await request(app)
-                .post('/api/items')
-                .send({ name: 'Incomplete' }); // Missing price, description, etc.
+            const res = await request(app).post('/api/items').send({ name: 'Incomplete' }); // Missing price, description, etc.
 
             expect(res.statusCode).toBe(400);
         });
@@ -54,7 +51,7 @@ describe('Shop Smart API CRUD Operations', () => {
         it('should return all items', async () => {
             await Item.create([
                 { name: 'Item 1', price: 10, description: 'Desc 1', category: 'Cat 1' },
-                { name: 'Item 2', price: 20, description: 'Desc 2', category: 'Cat 2' }
+                { name: 'Item 2', price: 20, description: 'Desc 2', category: 'Cat 2' },
             ]);
 
             const res = await request(app).get('/api/items');
@@ -77,7 +74,7 @@ describe('Shop Smart API CRUD Operations', () => {
                 name: 'Item 3',
                 price: 30,
                 description: 'Desc 3',
-                category: 'Cat 3'
+                category: 'Cat 3',
             });
 
             const res = await request(app).get(`/api/items/${item.id}`);
@@ -101,7 +98,7 @@ describe('Shop Smart API CRUD Operations', () => {
                 name: 'Item 4',
                 price: 40,
                 description: 'Desc 4',
-                category: 'Cat 4'
+                category: 'Cat 4',
             });
 
             const res = await request(app)
@@ -121,7 +118,7 @@ describe('Shop Smart API CRUD Operations', () => {
                 name: 'Item 5',
                 price: 50,
                 description: 'Desc 5',
-                category: 'Cat 5'
+                category: 'Cat 5',
             });
 
             const res = await request(app).delete(`/api/items/${item.id}`);

@@ -4,7 +4,9 @@ const app = require('../src/app');
 
 // Connect to a test database before running tests
 beforeAll(async () => {
-    await mongoose.connect(process.env.MONGO_URI_TEST || 'mongodb://127.0.0.1:27017/shopsmart_test');
+    await mongoose.connect(
+        process.env.MONGO_URI_TEST || 'mongodb://127.0.0.1:27017/shopsmart_test'
+    );
 });
 
 // Close database connection after all tests

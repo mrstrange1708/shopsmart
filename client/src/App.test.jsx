@@ -8,7 +8,8 @@ describe('App', () => {
         // Mock fetch
         globalThis.fetch = vi.fn(() =>
             Promise.resolve({
-                json: () => Promise.resolve({ status: 'ok', message: 'Test Msg', timestamp: 'now' })
+                json: () =>
+                    Promise.resolve({ status: 'ok', message: 'Test Msg', timestamp: 'now' }),
             })
         );
 

@@ -6,21 +6,35 @@ const getProductImage = (name, category, index) => {
     const lowerName = (name || '').toLowerCase();
 
     // Exact product name matches
-    if (lowerName.includes('gaming laptop') || lowerName.includes('laptop')) return '/images/product-gaming-laptop.png';
-    if (lowerName.includes('mechanical keyboard') || lowerName.includes('keyboard')) return '/images/product-mech-keyboard.png';
-    if (lowerName.includes('wireless mouse') || lowerName.includes('mouse')) return '/images/product-wireless-mouse.png';
-    if (lowerName.includes('coffee maker') || lowerName.includes('coffee')) return '/images/product-coffee-maker.png';
+    if (lowerName.includes('gaming laptop') || lowerName.includes('laptop'))
+        return '/images/product-gaming-laptop.png';
+    if (lowerName.includes('mechanical keyboard') || lowerName.includes('keyboard'))
+        return '/images/product-mech-keyboard.png';
+    if (lowerName.includes('wireless mouse') || lowerName.includes('mouse'))
+        return '/images/product-wireless-mouse.png';
+    if (lowerName.includes('coffee maker') || lowerName.includes('coffee'))
+        return '/images/product-coffee-maker.png';
     if (lowerName.includes('blender')) return '/images/product-blender.png';
-    if (lowerName.includes('running shoes') || lowerName.includes('shoes') || lowerName.includes('sneaker')) return '/images/product-running-shoes.png';
-    if (lowerName.includes('yoga mat') || lowerName.includes('yoga')) return '/images/product-yoga-mat.png';
-    if (lowerName.includes('desk lamp') || lowerName.includes('lamp')) return '/images/product-desk-lamp.png';
-    if (lowerName.includes('office chair') || lowerName.includes('chair')) return '/images/product-office-chair.png';
-    if (lowerName.includes('book') || lowerName.includes('python')) return '/images/product-backpack.png';
+    if (
+        lowerName.includes('running shoes') ||
+        lowerName.includes('shoes') ||
+        lowerName.includes('sneaker')
+    )
+        return '/images/product-running-shoes.png';
+    if (lowerName.includes('yoga mat') || lowerName.includes('yoga'))
+        return '/images/product-yoga-mat.png';
+    if (lowerName.includes('desk lamp') || lowerName.includes('lamp'))
+        return '/images/product-desk-lamp.png';
+    if (lowerName.includes('office chair') || lowerName.includes('chair'))
+        return '/images/product-office-chair.png';
+    if (lowerName.includes('book') || lowerName.includes('python'))
+        return '/images/product-backpack.png';
     if (lowerName.includes('headphone')) return '/images/product-headphones.png';
     if (lowerName.includes('watch')) return '/images/product-watch.png';
     if (lowerName.includes('camera')) return '/images/product-camera.png';
     if (lowerName.includes('speaker')) return '/images/product-speaker.png';
-    if (lowerName.includes('bag') || lowerName.includes('backpack')) return '/images/product-backpack.png';
+    if (lowerName.includes('bag') || lowerName.includes('backpack'))
+        return '/images/product-backpack.png';
     if (lowerName.includes('sunglasses')) return '/images/product-sunglasses.png';
 
     // Category fallbacks
@@ -77,8 +91,19 @@ const ProductCard = ({ item, index }) => {
                         ${item.price?.toFixed(2)}
                     </span>
                     <button className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.15em] text-luxury-silver hover:text-luxury-gold transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-3.5 w-3.5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={1.5}
+                                d="M12 4v16m8-8H4"
+                            />
                         </svg>
                         Add
                     </button>
@@ -120,7 +145,7 @@ const FeaturedProducts = () => {
 
     // Show only unique products (deduplicate by name)
     const uniqueItems = items.reduce((acc, item) => {
-        if (!acc.find(i => i.name === item.name)) acc.push(item);
+        if (!acc.find((i) => i.name === item.name)) acc.push(item);
         return acc;
     }, []);
 
@@ -147,7 +172,9 @@ const FeaturedProducts = () => {
                 {/* Grid */}
                 {loading ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-white/5">
-                        {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
+                        {[...Array(8)].map((_, i) => (
+                            <SkeletonCard key={i} />
+                        ))}
                     </div>
                 ) : error ? (
                     <div className="text-center py-16">

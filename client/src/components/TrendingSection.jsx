@@ -68,10 +68,24 @@ const TrendingSection = () => {
                             The most sought-after pieces this season
                         </p>
                     </div>
-                    <a href="#products" className="inline-flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.2em] text-luxury-silver hover:text-luxury-gold transition-colors group">
+                    <a
+                        href="#products"
+                        className="inline-flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.2em] text-luxury-silver hover:text-luxury-gold transition-colors group"
+                    >
                         View All
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 group-hover:translate-x-1 transition-transform"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={1.5}
+                                d="M17 8l4 4m0 0l-4 4m4-4H3"
+                            />
                         </svg>
                     </a>
                 </div>
@@ -85,7 +99,10 @@ const TrendingSection = () => {
                         >
                             {/* Sale */}
                             <div className="absolute top-4 right-4 z-10 bg-white text-black px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider">
-                                {Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)}% Off
+                                {Math.round(
+                                    ((product.oldPrice - product.price) / product.oldPrice) * 100
+                                )}
+                                % Off
                             </div>
 
                             {/* Tag */}
@@ -112,8 +129,12 @@ const TrendingSection = () => {
                                     <span className="text-[10px] text-luxury-silver">(4.9)</span>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <span className="text-xl font-display font-bold text-white">${product.price}</span>
-                                    <span className="text-sm text-luxury-silver line-through">${product.oldPrice}</span>
+                                    <span className="text-xl font-display font-bold text-white">
+                                        ${product.price}
+                                    </span>
+                                    <span className="text-sm text-luxury-silver line-through">
+                                        ${product.oldPrice}
+                                    </span>
                                 </div>
                                 <button className="w-full bg-white text-black py-3 text-[10px] font-medium uppercase tracking-[0.2em] hover:bg-luxury-gold transition-colors duration-300">
                                     Add to Cart

@@ -6,7 +6,7 @@ const reviews = [
         initials: 'SM',
         role: 'Tech Enthusiast',
         rating: 5,
-        text: 'The Gaming Laptop is absolutely incredible. RTX 4060 performance at this price point is unheard of. Sleek design and fast shipping — couldn\'t be happier.',
+        text: "The Gaming Laptop is absolutely incredible. RTX 4060 performance at this price point is unheard of. Sleek design and fast shipping — couldn't be happier.",
     },
     {
         name: 'James Rodriguez',
@@ -41,7 +41,7 @@ const reviews = [
         initials: 'DK',
         role: 'Digital Nomad',
         rating: 5,
-        text: 'Everything I\'ve ordered has exceeded expectations. The attention to detail in packaging and product quality speaks volumes. Premium experience end to end.',
+        text: "Everything I've ordered has exceeded expectations. The attention to detail in packaging and product quality speaks volumes. Premium experience end to end.",
     },
 ];
 
@@ -81,7 +81,9 @@ const CustomerReviews = () => {
                             {/* Stars */}
                             <div className="flex items-center gap-1 mb-5">
                                 {[...Array(review.rating)].map((_, i) => (
-                                    <span key={i} className="text-luxury-gold text-xs">★</span>
+                                    <span key={i} className="text-luxury-gold text-xs">
+                                        ★
+                                    </span>
                                 ))}
                             </div>
 
@@ -96,8 +98,12 @@ const CustomerReviews = () => {
                                     {review.initials}
                                 </div>
                                 <div>
-                                    <p className="text-xs font-semibold text-white">{review.name}</p>
-                                    <p className="text-[10px] text-luxury-silver uppercase tracking-wider">{review.role}</p>
+                                    <p className="text-xs font-semibold text-white">
+                                        {review.name}
+                                    </p>
+                                    <p className="text-[10px] text-luxury-silver uppercase tracking-wider">
+                                        {review.role}
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -112,9 +118,14 @@ const CustomerReviews = () => {
                         { icon: '✦', title: 'Secure Payment', desc: '100% encrypted' },
                         { icon: '✦', title: '24/7 Support', desc: 'Always available' },
                     ].map((item, i) => (
-                        <div key={i} className="text-center p-8 bg-luxury-charcoal hover:bg-luxury-carbon transition-colors">
+                        <div
+                            key={i}
+                            className="text-center p-8 bg-luxury-charcoal hover:bg-luxury-carbon transition-colors"
+                        >
                             <span className="text-luxury-gold text-lg mb-3 block">{item.icon}</span>
-                            <h4 className="text-[11px] font-semibold text-white uppercase tracking-[0.15em] mb-1">{item.title}</h4>
+                            <h4 className="text-[11px] font-semibold text-white uppercase tracking-[0.15em] mb-1">
+                                {item.title}
+                            </h4>
                             <p className="text-[10px] text-luxury-silver">{item.desc}</p>
                         </div>
                     ))}

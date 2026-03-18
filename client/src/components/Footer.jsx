@@ -53,11 +53,24 @@ const Footer = () => {
 
                     {/* Shop */}
                     <div>
-                        <h4 className="text-[10px] font-semibold text-white uppercase tracking-[0.2em] mb-6">Shop</h4>
+                        <h4 className="text-[10px] font-semibold text-white uppercase tracking-[0.2em] mb-6">
+                            Shop
+                        </h4>
                         <ul className="space-y-3">
-                            {['New Arrivals', 'Best Sellers', 'Trending', 'Sale', 'Collections'].map((link) => (
+                            {[
+                                'New Arrivals',
+                                'Best Sellers',
+                                'Trending',
+                                'Sale',
+                                'Collections',
+                            ].map((link) => (
                                 <li key={link}>
-                                    <a href="#" className="text-xs text-luxury-silver hover:text-luxury-gold transition-colors font-light">{link}</a>
+                                    <a
+                                        href="#"
+                                        className="text-xs text-luxury-silver hover:text-luxury-gold transition-colors font-light"
+                                    >
+                                        {link}
+                                    </a>
                                 </li>
                             ))}
                         </ul>
@@ -65,11 +78,18 @@ const Footer = () => {
 
                     {/* Company */}
                     <div>
-                        <h4 className="text-[10px] font-semibold text-white uppercase tracking-[0.2em] mb-6">Company</h4>
+                        <h4 className="text-[10px] font-semibold text-white uppercase tracking-[0.2em] mb-6">
+                            Company
+                        </h4>
                         <ul className="space-y-3">
                             {['About Us', 'Careers', 'Blog', 'Press', 'Contact'].map((link) => (
                                 <li key={link}>
-                                    <a href="#" className="text-xs text-luxury-silver hover:text-luxury-gold transition-colors font-light">{link}</a>
+                                    <a
+                                        href="#"
+                                        className="text-xs text-luxury-silver hover:text-luxury-gold transition-colors font-light"
+                                    >
+                                        {link}
+                                    </a>
                                 </li>
                             ))}
                         </ul>
@@ -77,13 +97,22 @@ const Footer = () => {
 
                     {/* Support */}
                     <div>
-                        <h4 className="text-[10px] font-semibold text-white uppercase tracking-[0.2em] mb-6">Support</h4>
+                        <h4 className="text-[10px] font-semibold text-white uppercase tracking-[0.2em] mb-6">
+                            Support
+                        </h4>
                         <ul className="space-y-3">
-                            {['Help Center', 'Shipping', 'Returns', 'Size Guide', 'FAQs'].map((link) => (
-                                <li key={link}>
-                                    <a href="#" className="text-xs text-luxury-silver hover:text-luxury-gold transition-colors font-light">{link}</a>
-                                </li>
-                            ))}
+                            {['Help Center', 'Shipping', 'Returns', 'Size Guide', 'FAQs'].map(
+                                (link) => (
+                                    <li key={link}>
+                                        <a
+                                            href="#"
+                                            className="text-xs text-luxury-silver hover:text-luxury-gold transition-colors font-light"
+                                        >
+                                            {link}
+                                        </a>
+                                    </li>
+                                )
+                            )}
                         </ul>
                     </div>
                 </div>
@@ -95,7 +124,11 @@ const Footer = () => {
                     </p>
                     <div className="flex items-center gap-6">
                         {['Privacy', 'Terms', 'Cookies'].map((link) => (
-                            <a key={link} href="#" className="text-[10px] text-luxury-silver hover:text-white transition-colors tracking-wider">
+                            <a
+                                key={link}
+                                href="#"
+                                className="text-[10px] text-luxury-silver hover:text-white transition-colors tracking-wider"
+                            >
                                 {link}
                             </a>
                         ))}

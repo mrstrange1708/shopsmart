@@ -71,9 +71,7 @@ const ShopItemsList = () => {
             {!loading && !error && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {items.length > 0 ? (
-                        items.map(item => (
-                            <ShopItemCard key={item.id} item={item} />
-                        ))
+                        items.map((item) => <ShopItemCard key={item.id} item={item} />)
                     ) : (
                         <div className="col-span-full text-center py-12 text-gray-500 bg-white rounded-lg border border-gray-200 border-dashed">
                             No items found matching your search.

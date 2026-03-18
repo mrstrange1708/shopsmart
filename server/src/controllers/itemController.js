@@ -11,8 +11,8 @@ exports.getAllItems = async (req, res) => {
                 $or: [
                     { name: { $regex: search, $options: 'i' } },
                     { description: { $regex: search, $options: 'i' } },
-                    { category: { $regex: search, $options: 'i' } }
-                ]
+                    { category: { $regex: search, $options: 'i' } },
+                ],
             };
         }
 
@@ -49,7 +49,7 @@ exports.createItem = async (req, res) => {
             name,
             price: parseFloat(price),
             description: description || '',
-            category: category || 'Uncategorized'
+            category: category || 'Uncategorized',
         });
 
         res.status(201).json(item);
@@ -63,7 +63,7 @@ exports.updateItem = async (req, res) => {
     try {
         const item = await Item.findByIdAndUpdate(req.params.id, req.body, {
             new: true,
-            runValidators: true
+            runValidators: true,
         });
 
         if (!item) {
