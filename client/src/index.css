@@ -1,11 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,700;0,800;0,900;1,400;1,700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+@layer utilities {
+    .gradient-text {
+        @apply bg-gradient-to-r from-luxury-mist via-white to-luxury-silver bg-clip-text;
+        -webkit-text-fill-color: transparent;
+    }
+    .gold-text {
+        @apply bg-gradient-to-r from-luxury-gold via-yellow-200 to-luxury-gold bg-clip-text;
+        -webkit-text-fill-color: transparent;
+    }
 }
 
-body {
-    @apply bg-gray-100 text-gray-900;
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+    body {
+        @apply bg-luxury-black text-luxury-pearl overflow-x-hidden;
+    }
+    ::selection {
+        @apply bg-luxury-gold/30 text-white;
+    }
+    ::-webkit-scrollbar {
+        @apply w-1.5;
+    }
+    ::-webkit-scrollbar-track {
+        @apply bg-luxury-black;
+    }
+    ::-webkit-scrollbar-thumb {
+        @apply bg-luxury-graphite rounded-full;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        @apply bg-luxury-silver;
+    }
 }
