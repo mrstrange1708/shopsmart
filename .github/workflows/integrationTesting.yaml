@@ -52,7 +52,7 @@ jobs:
         run: npm test -- tests/crud.test.js
         working-directory: server
         env:
-          MONGO_URI_TEST: mongodb://localhost:27017/shopsmart_integration
+          MONGO_URI_TEST: mongodb://127.0.0.1:27017/shopsmart_integration
 
       # ─────────────────────────────────────────────
       # 2. Frontend + Backend Integration Testing
@@ -62,10 +62,10 @@ jobs:
         working-directory: server
         env:
           PORT: 5001
-          MONGO_URI: mongodb://localhost:27017/shopsmart_integration
+          MONGO_URI: mongodb://127.0.0.1:27017/shopsmart_integration
 
       - name: Wait for Backend API to be ready
-        run: npx wait-on http://localhost:5001/api/health
+        run: npx wait-on http://127.0.0.1:5001/api/health
 
       - name: Test Frontend + Backend Interaction
         run: npm run test -- --run src/App.integration.test.jsx
