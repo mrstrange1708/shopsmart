@@ -1,0 +1,72 @@
+name: Integration Testing
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  system-integration:
+    name: System Integration Tests
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:5.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongo --eval 'db.runCommand({ping: 1})'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      # ─────────────────────────────────────────────
+      # Setup & Install
+      # ─────────────────────────────────────────────
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: server
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: client
+
+      # ─────────────────────────────────────────────
+      # 1. API + DB Integration Testing
+      # ─────────────────────────────────────────────
+      - name: Test API + DB Interaction (CRUD tests)
+        run: npm test -- tests/crud.test.js
+        working-directory: server
+        env:
+          MONGO_URI_TEST: mongodb://localhost:27017/shopsmart_integration
+
+      # ─────────────────────────────────────────────
+      # 2. Frontend + Backend Integration Testing
+      # ─────────────────────────────────────────────
+      - name: Start Backend Server
+        run: npm start &
+        working-directory: server
+        env:
+          PORT: 5001
+          MONGO_URI: mongodb://localhost:27017/shopsmart_integration
+
+      - name: Wait for Backend API to be ready
+        run: npx wait-on http://localhost:5001/api/health
+
+      - name: Test Frontend + Backend Interaction
+        run: npm run test -- --run src/App.integration.test.jsx
+        working-directory: client
