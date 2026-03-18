@@ -25,8 +25,10 @@ const itemSchema = mongoose.Schema({
 
 // Rename _id to id for frontend compatibility
 itemSchema.method('toJSON', function () {
-    const { __v, _id, ...object } = this.toObject();
-    object.id = _id;
+    const object = this.toObject();
+    object.id = object._id;
+    delete object._id;
+    delete object.__v;
     return object;
 });
 

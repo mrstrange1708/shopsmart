@@ -75,7 +75,7 @@ const CustomerReviews = () => {
                         >
                             {/* Quote */}
                             <span className="absolute top-6 right-8 text-5xl font-display text-white/[0.03] leading-none select-none">
-                                "
+                                &quot;
                             </span>
 
                             {/* Stars */}
@@ -87,7 +87,7 @@ const CustomerReviews = () => {
 
                             {/* Text */}
                             <p className="text-sm text-luxury-pearl/80 leading-relaxed mb-8 font-light">
-                                "{review.text}"
+                                &quot;{review.text}&quot;
                             </p>
 
                             {/* Author */}
