@@ -61,11 +61,11 @@ jobs:
         run: npm start &
         working-directory: server
         env:
-          PORT: 5001
+          PORT: 7777
           MONGO_URI: mongodb://127.0.0.1:27017/shopsmart_integration
 
       - name: Wait for Backend API to be ready
-        run: npx wait-on http://127.0.0.1:5001/api/health
+        run: npx wait-on http://127.0.0.1:7777/api/health
 
       - name: Test Frontend + Backend Interaction
         run: npm run test -- --run src/App.integration.test.jsx

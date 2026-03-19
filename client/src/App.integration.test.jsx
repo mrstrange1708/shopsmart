@@ -6,7 +6,7 @@ import { describe, it, expect } from 'vitest';
 describe('Frontend + Backend Integration', () => {
     it('connects to the real backend and renders products or empty state', async () => {
         // We DO NOT mock fetch here. We let the component use native Node 18 fetch
-        // to hit the locally running backend server (http://localhost:5001)
+        // to hit the locally running backend server (http://localhost:7777)
 
         render(<App />);
 
