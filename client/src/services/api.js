@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://127.0.0.1:7777/api/items';
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:7777/api/items';
 
 export const fetchItems = async (search = '') => {
     try {

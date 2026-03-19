@@ -51,6 +51,7 @@ cd "$SERVER_DIR"
 npm ci
 
 cd "$CLIENT_DIR"
+echo "VITE_API_URL=http://${EC2_HOST}:7777/api/items" > .env
 npm ci
 npm run build
 
