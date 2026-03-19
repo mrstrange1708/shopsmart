@@ -52,4 +52,3 @@ export const fetchTrendingProducts = async () => {
         throw error;
     }
 };
-
