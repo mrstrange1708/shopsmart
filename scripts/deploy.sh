@@ -13,8 +13,17 @@ echo "========================================="
 echo " ShopSmart Deployment Started"
 echo "========================================="
 
-# ===== BLOCK 1: REPO =====
-echo "[1/5] Checking repository..."
+# ===== BLOCK 1: INSTALL GIT =====
+echo "[1/6] Installing git..."
+if ! command -v git &> /dev/null; then
+  echo "[INFO] Git not found. Installing..."
+  sudo dnf install -y git
+else
+  echo "[INFO] Git already installed. Skipping."
+fi
+
+# ===== BLOCK 2: REPO =====
+echo "[2/6] Checking repository..."
 if [ -d "$APP_DIR" ]; then
   echo "[INFO] Repo exists. Pulling latest..."
   cd "$APP_DIR"
@@ -25,8 +34,8 @@ else
   cd "$APP_DIR"
 fi
 
-# ===== BLOCK 2: NODE =====
-echo "[2/5] Checking Node.js..."
+# ===== BLOCK 3: NODE =====
+echo "[3/6] Checking Node.js..."
 if ! command -v node &> /dev/null; then
   echo "[INFO] Node not found. Installing..."
   curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
@@ -35,8 +44,8 @@ else
   echo "[INFO] Node $(node -v) already installed. Skipping."
 fi
 
-# ===== BLOCK 3: DEPENDENCIES + BUILD =====
-echo "[3/5] Installing dependencies and building..."
+# ===== BLOCK 4: DEPENDENCIES + BUILD =====
+echo "[4/6] Installing dependencies and building..."
 
 cd "$SERVER_DIR"
 npm ci
@@ -47,8 +56,8 @@ npm run build
 
 echo "[INFO] Build complete."
 
-# ===== BLOCK 4: PM2 =====
-echo "[4/5] Checking pm2..."
+# ===== BLOCK 5: PM2 =====
+echo "[5/6] Checking pm2..."
 if ! command -v pm2 &> /dev/null; then
   echo "[INFO] pm2 not found. Installing globally..."
   sudo npm install -g pm2
@@ -68,8 +77,8 @@ else
   sudo pm2 startup systemd -u ec2-user --hp /home/ec2-user
 fi
 
-# ===== BLOCK 5: HEALTH CHECK =====
-echo "[5/5] Running health check..."
+# ===== BLOCK 6: HEALTH CHECK =====
+echo "[6/6] Running health check..."
 sleep 5
 
 if curl -f http://localhost:$APP_PORT/api/health; then
