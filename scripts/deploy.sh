@@ -82,8 +82,19 @@ fi
 sleep 8
 pm2 logs "$APP_NAME" --lines 20 --nostream
 
-# ===== BLOCK 6: HEALTH CHECK =====
-echo "[6/6] Running health check..."
+# ===== BLOCK 6: SERVE FRONTEND =====
+echo "[6/6] Starting frontend static server..."
+if pm2 list | grep -q "shopsmart-client"; then
+  echo "[INFO] Frontend already running. Restarting..."
+  pm2 restart shopsmart-client --update-env
+else
+  echo "[INFO] Starting frontend server..."
+  pm2 serve "$CLIENT_DIR/dist" 3000 --name "shopsmart-client" --spa
+  pm2 save
+fi
+
+# ===== BLOCK 7: HEALTH CHECK =====
+echo "[7/7] Running health check..."
 sleep 5
 
 if curl -f http://localhost:$APP_PORT/api/health; then
