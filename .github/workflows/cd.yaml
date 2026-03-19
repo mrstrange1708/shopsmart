@@ -35,6 +35,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: MONGO_URI
           script: |
             chmod +x /home/ec2-user/scripts/deploy.sh
-            /home/ec2-user/scripts/deploy.sh
+            MONGO_URI="${{ secrets.MONGO_URI }}" /home/ec2-user/scripts/deploy.sh

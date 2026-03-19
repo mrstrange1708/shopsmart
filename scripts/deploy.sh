@@ -69,13 +69,18 @@ cd "$SERVER_DIR"
 
 if pm2 list | grep -q "$APP_NAME"; then
   echo "[INFO] App already running. Restarting..."
+  pm2 set env:MONGO_URI "${MONGO_URI}"
+  pm2 set env:PORT "7777"
   pm2 restart "$APP_NAME"
 else
   echo "[INFO] App not running. Starting fresh..."
-  pm2 start npm --name "$APP_NAME" -- start
+  PORT=7777 MONGO_URI="${MONGO_URI}" pm2 start npm --name "$APP_NAME" -- start
   pm2 save
   sudo pm2 startup systemd -u ec2-user --hp /home/ec2-user
 fi
+
+sleep 8
+pm2 logs "$APP_NAME" --lines 20 --nostream
 
 # ===== BLOCK 6: HEALTH CHECK =====
 echo "[6/6] Running health check..."
