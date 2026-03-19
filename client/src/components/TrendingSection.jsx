@@ -22,11 +22,52 @@ const TrendingSection = () => {
         loadTrendingProducts();
     }, []);
 
+    // Section header (always visible)
+    const sectionHeader = (
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-20">
+            <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                    <div className="w-12 h-px bg-luxury-gold"></div>
+                    <span className="text-[10px] font-medium uppercase tracking-[0.3em] text-luxury-gold">
+                        Hot Right Now
+                    </span>
+                </div>
+                <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight">
+                    Trending Now
+                </h2>
+                <p className="text-luxury-silver max-w-md text-sm font-light leading-relaxed">
+                    The most sought-after pieces this season
+                </p>
+            </div>
+            <a
+                href="#products"
+                className="inline-flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.2em] text-luxury-silver hover:text-luxury-gold transition-colors group"
+            >
+                View All
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 group-hover:translate-x-1 transition-transform"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M17 8l4 4m0 0l-4 4m4-4H3"
+                    />
+                </svg>
+            </a>
+        </div>
+    );
+
     // Loading skeleton
     if (loading) {
         return (
             <section id="trending" className="relative py-28 px-6 sm:px-8 lg:px-12 overflow-hidden">
-                <div className="max-w-7xl mx-auto">
+                <div className="max-w-7xl mx-auto relative z-10">
+                    {sectionHeader}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                         {[...Array(6)].map((_, i) => (
                             <div
@@ -52,8 +93,9 @@ const TrendingSection = () => {
     if (error) {
         return (
             <section id="trending" className="relative py-28 px-6 sm:px-8 lg:px-12 overflow-hidden">
-                <div className="max-w-7xl mx-auto text-center">
-                    <p className="text-luxury-silver">{error}</p>
+                <div className="max-w-7xl mx-auto relative z-10">
+                    {sectionHeader}
+                    <p className="text-luxury-silver text-center">{error}</p>
                 </div>
             </section>
         );
@@ -66,42 +108,7 @@ const TrendingSection = () => {
 
             <div className="max-w-7xl mx-auto relative z-10">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-20">
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-3">
-                            <div className="w-12 h-px bg-luxury-gold"></div>
-                            <span className="text-[10px] font-medium uppercase tracking-[0.3em] text-luxury-gold">
-                                Hot Right Now
-                            </span>
-                        </div>
-                        <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight">
-                            Trending Now
-                        </h2>
-                        <p className="text-luxury-silver max-w-md text-sm font-light leading-relaxed">
-                            The most sought-after pieces this season
-                        </p>
-                    </div>
-                    <a
-                        href="#products"
-                        className="inline-flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.2em] text-luxury-silver hover:text-luxury-gold transition-colors group"
-                    >
-                        View All
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 group-hover:translate-x-1 transition-transform"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={1.5}
-                                d="M17 8l4 4m0 0l-4 4m4-4H3"
-                            />
-                        </svg>
-                    </a>
-                </div>
+                {sectionHeader}
 
                 {/* Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
