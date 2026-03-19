@@ -1,51 +1,64 @@
-import React from 'react';
-
-const trendingProducts = [
-    {
-        name: 'Gaming Laptop RTX 4060',
-        price: 1299.99,
-        oldPrice: 1599.99,
-        image: '/images/product-gaming-laptop.png',
-        tag: 'Best Seller',
-    },
-    {
-        name: 'Mechanical Keyboard RGB',
-        price: 89.99,
-        oldPrice: 129.99,
-        image: '/images/product-mech-keyboard.png',
-        tag: 'Trending',
-    },
-    {
-        name: 'Wireless Ergonomic Mouse',
-        price: 29.99,
-        oldPrice: 49.99,
-        image: '/images/product-wireless-mouse.png',
-        tag: 'Hot Deal',
-    },
-    {
-        name: 'Pro Coffee Maker',
-        price: 49.99,
-        oldPrice: 79.99,
-        image: '/images/product-coffee-maker.png',
-        tag: 'Limited',
-    },
-    {
-        name: 'Running Shoes Pro',
-        price: 79.99,
-        oldPrice: 119.99,
-        image: '/images/product-running-shoes.png',
-        tag: 'New',
-    },
-    {
-        name: 'LED Desk Lamp',
-        price: 24.99,
-        oldPrice: 39.99,
-        image: '/images/product-desk-lamp.png',
-        tag: 'Popular',
-    },
-];
+import React, { useState, useEffect } from 'react';
+import { fetchTrendingProducts } from '../services/api';
 
 const TrendingSection = () => {
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const loadTrendingProducts = async () => {
+            try {
+                const data = await fetchTrendingProducts();
+                setProducts(data);
+            } catch (err) {
+                setError('Failed to load trending products');
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadTrendingProducts();
+    }, []);
+
+    // Loading skeleton
+    if (loading) {
+        return (
+            <section id="trending" className="relative py-28 px-6 sm:px-8 lg:px-12 overflow-hidden">
+                <div className="max-w-7xl mx-auto">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {[...Array(6)].map((_, i) => (
+                            <div
+                                key={i}
+                                className="bg-luxury-charcoal border border-white/5 animate-pulse"
+                            >
+                                <div className="aspect-[4/3] bg-luxury-dark" />
+                                <div className="p-6 space-y-4">
+                                    <div className="h-4 bg-white/10 rounded w-3/4" />
+                                    <div className="h-3 bg-white/10 rounded w-1/4" />
+                                    <div className="h-5 bg-white/10 rounded w-1/3" />
+                                    <div className="h-10 bg-white/10 rounded" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
+    }
+
+    // Error state
+    if (error) {
+        return (
+            <section id="trending" className="relative py-28 px-6 sm:px-8 lg:px-12 overflow-hidden">
+                <div className="max-w-7xl mx-auto text-center">
+                    <p className="text-luxury-silver">{error}</p>
+                </div>
+            </section>
+        );
+    }
+
     return (
         <section id="trending" className="relative py-28 px-6 sm:px-8 lg:px-12 overflow-hidden">
             {/* Subtle background line */}
@@ -92,9 +105,9 @@ const TrendingSection = () => {
 
                 {/* Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {trendingProducts.map((product, index) => (
+                    {products.map((product) => (
                         <div
-                            key={index}
+                            key={product.id || product._id}
                             className="group relative bg-luxury-charcoal overflow-hidden border border-white/5 hover:border-luxury-gold/20 transition-all duration-500 hover:-translate-y-2"
                         >
                             {/* Sale */}
@@ -126,7 +139,9 @@ const TrendingSection = () => {
                                 </h3>
                                 <div className="flex items-center gap-2">
                                     <span className="text-luxury-gold text-xs">★★★★★</span>
-                                    <span className="text-[10px] text-luxury-silver">(4.9)</span>
+                                    <span className="text-[10px] text-luxury-silver">
+                                        ({product.rating ?? 4.9})
+                                    </span>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <span className="text-xl font-display font-bold text-white">

@@ -14,7 +14,7 @@ echo " ShopSmart Deployment Started"
 echo "========================================="
 
 # ===== BLOCK 1: INSTALL GIT =====
-echo "[1/6] Installing git..."
+echo "[1/7] Installing git..."
 if ! command -v git &> /dev/null; then
   echo "[INFO] Git not found. Installing..."
   sudo dnf install -y git
@@ -23,7 +23,7 @@ else
 fi
 
 # ===== BLOCK 2: REPO =====
-echo "[2/6] Checking repository..."
+echo "[2/7] Checking repository..."
 if [ -d "$APP_DIR" ]; then
   echo "[INFO] Repo exists. Pulling latest..."
   cd "$APP_DIR"
@@ -35,7 +35,7 @@ else
 fi
 
 # ===== BLOCK 3: NODE =====
-echo "[3/6] Checking Node.js..."
+echo "[3/7] Checking Node.js..."
 if ! command -v node &> /dev/null; then
   echo "[INFO] Node not found. Installing..."
   curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
@@ -45,7 +45,7 @@ else
 fi
 
 # ===== BLOCK 4: DEPENDENCIES + BUILD =====
-echo "[4/6] Installing dependencies and building..."
+echo "[4/7] Installing dependencies and building..."
 
 cd "$SERVER_DIR"
 npm ci
@@ -58,7 +58,7 @@ npm run build
 echo "[INFO] Build complete."
 
 # ===== BLOCK 5: PM2 =====
-echo "[5/6] Checking pm2..."
+echo "[5/7] Checking pm2..."
 if ! command -v pm2 &> /dev/null; then
   echo "[INFO] pm2 not found. Installing globally..."
   sudo npm install -g pm2
@@ -66,16 +66,31 @@ else
   echo "[INFO] pm2 already installed. Skipping."
 fi
 
+# ===== BLOCK 6: ECOSYSTEM CONFIG =====
+echo "[6/7] Writing pm2 ecosystem config..."
+cat > "$SERVER_DIR/ecosystem.config.cjs" << EOF
+module.exports = {
+  apps: [{
+    name: "shopsmart",
+    script: "npm",
+    args: "start",
+    cwd: "${SERVER_DIR}",
+    env: {
+      PORT: "7777",
+      MONGO_URI: "${MONGO_URI}"
+    }
+  }]
+}
+EOF
+
 cd "$SERVER_DIR"
 
 if pm2 list | grep -q "$APP_NAME"; then
-  echo "[INFO] App already running. Restarting..."
-  pm2 set env:MONGO_URI "${MONGO_URI}"
-  pm2 set env:PORT "7777"
-  pm2 restart "$APP_NAME"
+  echo "[INFO] App already running. Restarting with updated env..."
+  pm2 restart ecosystem.config.cjs --update-env
 else
   echo "[INFO] App not running. Starting fresh..."
-  PORT=7777 MONGO_URI="${MONGO_URI}" pm2 start npm --name "$APP_NAME" -- start
+  pm2 start ecosystem.config.cjs
   pm2 save
   sudo pm2 startup systemd -u ec2-user --hp /home/ec2-user
 fi
@@ -84,7 +99,7 @@ sleep 8
 pm2 logs "$APP_NAME" --lines 20 --nostream
 
 # ===== BLOCK 6: SERVE FRONTEND =====
-echo "[6/6] Starting frontend static server..."
+echo "[6/7] Starting frontend static server..."
 if pm2 list | grep -q "shopsmart-client"; then
   echo "[INFO] Frontend already running. Restarting..."
   pm2 restart shopsmart-client --update-env

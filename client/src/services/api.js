@@ -1,6 +1,8 @@
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:7777/api/items';
+const BASE_URL = API_URL.replace(/\/api\/items\/?$/, '/api');
+const PRODUCTS_URL = `${BASE_URL}/products`;
 
 export const fetchItems = async (search = '') => {
     try {
@@ -40,3 +42,14 @@ export const deleteItem = async (id) => {
         throw error;
     }
 };
+
+export const fetchTrendingProducts = async () => {
+    try {
+        const response = await axios.get(`${PRODUCTS_URL}/trending`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching trending products:', error);
+        throw error;
+    }
+};
+
