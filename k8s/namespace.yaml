@@ -1,0 +1,10 @@
+# ──────────────────────────────────────────────────────────────
+# Namespace — Non-default (rubric requirement)
+# ──────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: shopsmart
+  labels:
+    app: shopsmart
+    managed-by: github-actions

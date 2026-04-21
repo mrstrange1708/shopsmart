@@ -1,0 +1,68 @@
+# ──────────────────────────────────────────────────────────────
+# Server Deployment
+# Rubric: 2 replicas, resource limits, liveness/readiness probes
+# ──────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopsmart-server
+  namespace: shopsmart
+  labels:
+    app: shopsmart
+    component: server
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shopsmart
+      component: server
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: shopsmart
+        component: server
+    spec:
+      containers:
+        - name: shopsmart-server
+          image: IMAGE_PLACEHOLDER_SERVER
+          ports:
+            - containerPort: 7777
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: shopsmart-config
+          env:
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: shopsmart-secrets
+                  key: MONGO_URI
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 7777
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 7777
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+      restartPolicy: Always

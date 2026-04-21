@@ -1,0 +1,12 @@
+# ──────────────────────────────────────────────────────────────
+# ConfigMap — Shared environment configuration
+# ──────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shopsmart-config
+  namespace: shopsmart
+  labels:
+    app: shopsmart
+data:
+  PORT: "7777"

@@ -1,0 +1,20 @@
+# ──────────────────────────────────────────────────────────────
+# Server Service — Internal ClusterIP
+# ──────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: shopsmart-server
+  namespace: shopsmart
+  labels:
+    app: shopsmart
+    component: server
+spec:
+  type: ClusterIP
+  selector:
+    app: shopsmart
+    component: server
+  ports:
+    - port: 7777
+      targetPort: 7777
+      protocol: TCP

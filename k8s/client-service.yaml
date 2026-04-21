@@ -1,0 +1,20 @@
+# ──────────────────────────────────────────────────────────────
+# Client Service — LoadBalancer (public-facing)
+# ──────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: shopsmart-client
+  namespace: shopsmart
+  labels:
+    app: shopsmart
+    component: client
+spec:
+  type: LoadBalancer
+  selector:
+    app: shopsmart
+    component: client
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
