@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: ./server
+    ports:
+      - "7777:7777"
+    environment:
+      - PORT=7777
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+
+  client:
+    build:
+      context: ./client
+    ports:
+      - "5173:5173"
+    environment:
+      - BACKEND_URL=http://server:7777
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    depends_on:
+      - server
