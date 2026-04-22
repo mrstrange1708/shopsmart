@@ -6,10 +6,11 @@
 name: Deploy Pipeline
 
 on:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
+  # push:
+  #   branches: ["main"]
+  # pull_request:
+  #   branches: ["main"]
+  workflow_dispatch: # Allows you to run this workflow manually from the Actions tab
 
 env:
   CLUSTER_NAME: shopsmart-devops
