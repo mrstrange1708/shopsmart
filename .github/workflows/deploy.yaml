@@ -136,10 +136,24 @@ jobs:
         id: tf_outputs
         working-directory: terraform
         run: |
-          echo "ecr_server_url=$(terraform output -raw ecr_server_url)" >> $GITHUB_OUTPUT
-          echo "ecr_client_url=$(terraform output -raw ecr_client_url)" >> $GITHUB_OUTPUT
-          echo "cluster_name=$(terraform output -raw cluster_name)" >> $GITHUB_OUTPUT
-          echo "region=$(terraform output -raw region)" >> $GITHUB_OUTPUT
+          # Refresh state to ensure outputs are available
+          terraform refresh -var="aws_region=${{ secrets.AWS_REGION }}"
+
+          ECR_SERVER=$(terraform output -raw ecr_server_url)
+          ECR_CLIENT=$(terraform output -raw ecr_client_url)
+          CLUSTER=$(terraform output -raw cluster_name)
+          REGION=$(terraform output -raw region)
+
+          echo "ecr_server_url=$ECR_SERVER" >> $GITHUB_OUTPUT
+          echo "ecr_client_url=$ECR_CLIENT" >> $GITHUB_OUTPUT
+          echo "cluster_name=$CLUSTER" >> $GITHUB_OUTPUT
+          echo "region=$REGION" >> $GITHUB_OUTPUT
+
+          echo "── Terraform Outputs ──"
+          echo "ECR Server: $ECR_SERVER"
+          echo "ECR Client: $ECR_CLIENT"
+          echo "Cluster:    $CLUSTER"
+          echo "Region:     $REGION"
 
   # ─────────────────────────────────────────────────────────────
   # Docker Build & Push to ECR
@@ -176,18 +190,33 @@ jobs:
           ECR_CLIENT_URL: ${{ needs.terraform.outputs.ecr_client_url }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
+          # Validate ECR URLs are not empty
+          if [ -z "$ECR_SERVER_URL" ] || [ -z "$ECR_CLIENT_URL" ]; then
+            echo "ERROR: ECR URLs are empty!"
+            echo "ECR_SERVER_URL=$ECR_SERVER_URL"
+            echo "ECR_CLIENT_URL=$ECR_CLIENT_URL"
+            # Fallback: construct from AWS account ID
+            AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+            AWS_REGION="${{ secrets.AWS_REGION }}"
+            ECR_SERVER_URL="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/shopsmart-server"
+            ECR_CLIENT_URL="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/shopsmart-client"
+            echo "Using fallback ECR URLs:"
+            echo "  Server: $ECR_SERVER_URL"
+            echo "  Client: $ECR_CLIENT_URL"
+          fi
+
           # ─── Server Image ──────────────────────────────────
           echo "Building server image..."
-          docker build -t $ECR_SERVER_URL:$IMAGE_TAG -t $ECR_SERVER_URL:latest ./server
-          docker push $ECR_SERVER_URL:$IMAGE_TAG
-          docker push $ECR_SERVER_URL:latest
+          docker build -t "$ECR_SERVER_URL:$IMAGE_TAG" -t "$ECR_SERVER_URL:latest" ./server
+          docker push "$ECR_SERVER_URL:$IMAGE_TAG"
+          docker push "$ECR_SERVER_URL:latest"
           echo "server_image=$ECR_SERVER_URL:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
           # ─── Client Image ──────────────────────────────────
           echo "Building client image..."
-          docker build -t $ECR_CLIENT_URL:$IMAGE_TAG -t $ECR_CLIENT_URL:latest ./client
-          docker push $ECR_CLIENT_URL:$IMAGE_TAG
-          docker push $ECR_CLIENT_URL:latest
+          docker build -t "$ECR_CLIENT_URL:$IMAGE_TAG" -t "$ECR_CLIENT_URL:latest" ./client
+          docker push "$ECR_CLIENT_URL:$IMAGE_TAG"
+          docker push "$ECR_CLIENT_URL:latest"
           echo "client_image=$ECR_CLIENT_URL:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
   # ─────────────────────────────────────────────────────────────
