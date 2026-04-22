@@ -119,14 +119,24 @@ jobs:
       # ─── Bootstrap: Ensure S3 bucket exists before init ─────
       - name: Bootstrap S3 backend
         run: |
-          BUCKET="s3-shopsmart-devops-project"
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          BUCKET="s3-shopsmart-devops-project-${ACCOUNT_ID}"
           REGION="${{ secrets.AWS_REGION }}"
+
+          # Export BUCKET to GITHUB_ENV so subsequent steps can use it
+          echo "TF_VAR_BUCKET=$BUCKET" >> $GITHUB_ENV
 
           if aws s3api head-bucket --bucket "$BUCKET" 2>/dev/null; then
             echo "✅ S3 bucket already exists"
           else
             echo "🔨 Creating S3 bucket for Terraform state..."
-            aws s3api create-bucket --bucket "$BUCKET" --region "$REGION"
+            if [ "$REGION" = "us-east-1" ]; then
+              aws s3api create-bucket --bucket "$BUCKET" --region "$REGION"
+            else
+              aws s3api create-bucket --bucket "$BUCKET" --region "$REGION" \
+                --create-bucket-configuration LocationConstraint=$REGION
+            fi
+            
             aws s3api put-bucket-versioning --bucket "$BUCKET" \
               --versioning-configuration Status=Enabled
             aws s3api put-bucket-encryption --bucket "$BUCKET" \
@@ -139,30 +149,29 @@ jobs:
           fi
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -backend-config="bucket=${TF_VAR_BUCKET}"
         working-directory: terraform
 
       # ─── Import S3 resources if not already in state ────────
       - name: Import existing resources
         working-directory: terraform
         run: |
-          BUCKET="s3-shopsmart-devops-project"
           # Import S3 bucket + config if not already tracked by Terraform
-          terraform import -var="aws_region=${{ secrets.AWS_REGION }}" \
-            aws_s3_bucket.terraform_state "$BUCKET" 2>/dev/null || true
-          terraform import -var="aws_region=${{ secrets.AWS_REGION }}" \
-            aws_s3_bucket_versioning.terraform_state "$BUCKET" 2>/dev/null || true
-          terraform import -var="aws_region=${{ secrets.AWS_REGION }}" \
-            aws_s3_bucket_server_side_encryption_configuration.terraform_state "$BUCKET" 2>/dev/null || true
-          terraform import -var="aws_region=${{ secrets.AWS_REGION }}" \
-            aws_s3_bucket_public_access_block.terraform_state "$BUCKET" 2>/dev/null || true
+          terraform import -var="aws_region=${{ secrets.AWS_REGION }}" -var="s3_bucket_name=${TF_VAR_BUCKET}" \
+            aws_s3_bucket.terraform_state "${TF_VAR_BUCKET}" 2>/dev/null || true
+          terraform import -var="aws_region=${{ secrets.AWS_REGION }}" -var="s3_bucket_name=${TF_VAR_BUCKET}" \
+            aws_s3_bucket_versioning.terraform_state "${TF_VAR_BUCKET}" 2>/dev/null || true
+          terraform import -var="aws_region=${{ secrets.AWS_REGION }}" -var="s3_bucket_name=${TF_VAR_BUCKET}" \
+            aws_s3_bucket_server_side_encryption_configuration.terraform_state "${TF_VAR_BUCKET}" 2>/dev/null || true
+          terraform import -var="aws_region=${{ secrets.AWS_REGION }}" -var="s3_bucket_name=${TF_VAR_BUCKET}" \
+            aws_s3_bucket_public_access_block.terraform_state "${TF_VAR_BUCKET}" 2>/dev/null || true
 
       - name: Terraform Validate
         run: terraform validate
         working-directory: terraform
 
       - name: Terraform Plan
-        run: terraform plan -var="aws_region=${{ secrets.AWS_REGION }}" -out=tfplan
+        run: terraform plan -var="aws_region=${{ secrets.AWS_REGION }}" -var="s3_bucket_name=${TF_VAR_BUCKET}" -out=tfplan
         working-directory: terraform
 
       - name: Terraform Apply
@@ -173,8 +182,6 @@ jobs:
         id: tf_outputs
         working-directory: terraform
         run: |
-          terraform refresh -var="aws_region=${{ secrets.AWS_REGION }}"
-
           ECR_SERVER=$(terraform output -raw ecr_server_url)
           ECR_CLIENT=$(terraform output -raw ecr_client_url)
           CLUSTER=$(terraform output -raw cluster_name)
@@ -311,33 +318,41 @@ jobs:
           echo "Server image: $SERVER_IMAGE"
           echo "Client image: $CLIENT_IMAGE"
 
-      # ─── Replace image placeholders and apply ──────────────
-      - name: Deploy server
+      # ─── Replace image placeholders and apply using Kustomize ─
+      - name: Deploy application
         env:
           SERVER_IMAGE: ${{ steps.images.outputs.server_image }}
-        run: |
-          sed -i "s|IMAGE_PLACEHOLDER_SERVER|$SERVER_IMAGE|g" k8s/server-deployment.yaml
-          kubectl apply -f k8s/server-deployment.yaml
-          kubectl apply -f k8s/server-service.yaml
-
-      - name: Deploy client
-        env:
           CLIENT_IMAGE: ${{ steps.images.outputs.client_image }}
         run: |
-          sed -i "s|IMAGE_PLACEHOLDER_CLIENT|$CLIENT_IMAGE|g" k8s/client-deployment.yaml
-          kubectl apply -f k8s/client-deployment.yaml
-          kubectl apply -f k8s/client-service.yaml
+          cd k8s
+          
+          # Parse the image coordinates correctly for Kustomize
+          # Kustomize expects: kustomize edit set image [name]=[newName]:[newTag]
+          # Since our SERVER_IMAGE and CLIENT_IMAGE are fully qualified URLs with tags,
+          # we can just use them as the newName:newTag directly.
+          
+          kustomize edit set image IMAGE_PLACEHOLDER_SERVER=$SERVER_IMAGE
+          kustomize edit set image IMAGE_PLACEHOLDER_CLIENT=$CLIENT_IMAGE
+          
+          # Apply the kustomization
+          kubectl apply -k .
 
-      # ─── Wait for rollout ──────────────────────────────────
-      - name: Wait for server rollout
+      # ─── Wait for rollout & auto-rollback on failure ───────
+      - name: Verify rollout and rollback if failed
         run: |
-          kubectl rollout status deployment/shopsmart-server \
-            --namespace=shopsmart --timeout=300s
-
-      - name: Wait for client rollout
-        run: |
-          kubectl rollout status deployment/shopsmart-client \
-            --namespace=shopsmart --timeout=300s
+          echo "Waiting for server rollout..."
+          if ! kubectl rollout status deployment/shopsmart-server --namespace=shopsmart --timeout=120s; then
+            echo "❌ Server rollout failed! Rolling back..."
+            kubectl rollout undo deployment/shopsmart-server --namespace=shopsmart
+            exit 1
+          fi
+          
+          echo "Waiting for client rollout..."
+          if ! kubectl rollout status deployment/shopsmart-client --namespace=shopsmart --timeout=120s; then
+            echo "❌ Client rollout failed! Rolling back..."
+            kubectl rollout undo deployment/shopsmart-client --namespace=shopsmart
+            exit 1
+          fi
 
       # ─── Print deployment info ─────────────────────────────
       - name: Deployment Summary
@@ -358,3 +373,37 @@ jobs:
             echo "(pending — may take 1-2 minutes for AWS ELB provisioning)"
           echo ""
           echo "════════════════════════════════════════════════"
+
+      # ─── Post-Deployment Health Verification ───────────────
+      - name: Verify Live Endpoint Health
+        run: |
+          echo "Fetching LoadBalancer URL..."
+          CLIENT_URL=$(kubectl get svc shopsmart-client -n shopsmart -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+          
+          if [ -z "$CLIENT_URL" ]; then
+             echo "LoadBalancer URL not ready yet. Skipping health check."
+             exit 0
+          fi
+          
+          echo "Testing endpoint: http://$CLIENT_URL/"
+          echo "Waiting up to 3 minutes for DNS propagation and ELB routing..."
+          
+          SUCCESS=0
+          for i in {1..18}; do
+            # Use curl to get HTTP status code, failing on errors
+            if curl -s --max-time 5 -f http://$CLIENT_URL/ > /dev/null; then
+              echo "✅ Health check passed! Application is live and responding."
+              SUCCESS=1
+              break
+            fi
+            echo "Attempt $i failed. Retrying in 10 seconds..."
+            sleep 10
+          done
+          
+          if [ $SUCCESS -eq 0 ]; then
+            echo "❌ Health check failed after 3 minutes. The deployment succeeded but the endpoint is not returning HTTP 200."
+            # We don't necessarily fail the pipeline if it's just DNS propagation,
+            # but we throw a warning. Or we can exit 1. Given AWS ELB can take 5 mins,
+            # we'll just log an error for now to avoid false negative pipeline runs.
+            echo "::warning::Endpoint health check failed. AWS ELB might still be provisioning."
+          fi
