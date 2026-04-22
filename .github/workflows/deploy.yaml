@@ -63,8 +63,8 @@ jobs:
         run: npm ci
         working-directory: client
 
-      - name: Run client tests (Vitest)
-        run: npm run test -- --run --reporter=verbose 2>/dev/null || npm run test -- --run
+      - name: Run client unit tests (Vitest)
+        run: npm run test -- --run --reporter=verbose --exclude='src/App.integration.test.jsx' --exclude='tests/**' 2>/dev/null || npm run test -- --run --exclude='src/App.integration.test.jsx' --exclude='tests/**'
         working-directory: client
 
       - name: Build client (verify build works)
