@@ -244,8 +244,8 @@ jobs:
       - name: Update kubeconfig
         run: |
           aws eks update-kubeconfig \
-            --name ${{ needs.terraform.outputs.cluster_name }} \
-            --region ${{ needs.terraform.outputs.region }}
+            --name shopsmart-devops \
+            --region ${{ secrets.AWS_REGION }}
 
       # ─── Create namespace + config ────────────────────────
       - name: Apply namespace and configmap
