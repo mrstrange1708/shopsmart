@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:7777/api/items';
+const API_URL = import.meta.env.VITE_API_URL || '/api/items';
 const BASE_URL = API_URL.replace(/\/api\/items\/?$/, '/api');
 const PRODUCTS_URL = `${BASE_URL}/products`;
 
