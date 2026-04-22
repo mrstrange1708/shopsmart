@@ -1,64 +1,17 @@
 # ──────────────────────────────────────────────────────────────
-# IAM Roles — EKS Cluster + Node Group
+# IAM — Use existing AWS Academy LabRole
+# AWS Academy Learner Lab does NOT allow iam:CreateRole
+# Instead, we reference the pre-existing "LabRole"
 # ──────────────────────────────────────────────────────────────
 
-# ─── EKS Cluster Role ────────────────────────────────────────
-resource "aws_iam_role" "eks_cluster" {
-  name = "${var.cluster_name}-cluster-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "eks.amazonaws.com"
-        }
-      }
-    ]
-  })
+# Look up the existing LabRole (pre-created by AWS Academy)
+data "aws_iam_role" "lab_role" {
+  name = "LabRole"
 }
 
-resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-  role       = aws_iam_role.eks_cluster.name
-}
-
-resource "aws_iam_role_policy_attachment" "eks_service_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
-  role       = aws_iam_role.eks_cluster.name
-}
-
-# ─── EKS Node Group Role ────────────────────────────────────
-resource "aws_iam_role" "eks_nodes" {
-  name = "${var.cluster_name}-node-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "eks_worker_node_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-  role       = aws_iam_role.eks_nodes.name
-}
-
-resource "aws_iam_role_policy_attachment" "eks_cni_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-  role       = aws_iam_role.eks_nodes.name
-}
-
-resource "aws_iam_role_policy_attachment" "ecr_read_only" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-  role       = aws_iam_role.eks_nodes.name
-}
+# No policy attachments needed — LabRole already has:
+# - AmazonEKSClusterPolicy
+# - AmazonEKSWorkerNodePolicy
+# - AmazonEKS_CNI_Policy
+# - AmazonEC2ContainerRegistryReadOnly
+# - And more (managed by AWS Academy)

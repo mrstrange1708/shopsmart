@@ -1,11 +1,12 @@
 # ──────────────────────────────────────────────────────────────
 # EKS Cluster + Managed Node Group
+# Uses AWS Academy LabRole (cannot create custom IAM roles)
 # ──────────────────────────────────────────────────────────────
 
 # ─── EKS Cluster ─────────────────────────────────────────────
 resource "aws_eks_cluster" "main" {
   name     = var.cluster_name
-  role_arn = aws_iam_role.eks_cluster.arn
+  role_arn = data.aws_iam_role.lab_role.arn
   version  = var.cluster_version
 
   vpc_config {
@@ -17,11 +18,6 @@ resource "aws_eks_cluster" "main" {
     endpoint_private_access = false
   }
 
-  depends_on = [
-    aws_iam_role_policy_attachment.eks_cluster_policy,
-    aws_iam_role_policy_attachment.eks_service_policy,
-  ]
-
   tags = {
     Name = var.cluster_name
   }
@@ -31,7 +27,7 @@ resource "aws_eks_cluster" "main" {
 resource "aws_eks_node_group" "workers" {
   cluster_name    = aws_eks_cluster.main.name
   node_group_name = "${var.cluster_name}-workers"
-  node_role_arn   = aws_iam_role.eks_nodes.arn
+  node_role_arn   = data.aws_iam_role.lab_role.arn
   subnet_ids = [
     aws_subnet.public_1.id,
     aws_subnet.public_2.id
@@ -48,12 +44,6 @@ resource "aws_eks_node_group" "workers" {
   update_config {
     max_unavailable = 1
   }
-
-  depends_on = [
-    aws_iam_role_policy_attachment.eks_worker_node_policy,
-    aws_iam_role_policy_attachment.eks_cni_policy,
-    aws_iam_role_policy_attachment.ecr_read_only,
-  ]
 
   tags = {
     Name = "${var.cluster_name}-workers"

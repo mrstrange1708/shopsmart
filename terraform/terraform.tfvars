@@ -4,7 +4,7 @@
 
 aws_region         = "us-east-1"
 cluster_name       = "shopsmart-devops"
-cluster_version    = "1.29"
+cluster_version    = "1.31"
 node_instance_type = "t3.medium"
 node_desired_size  = 2
 node_min_size      = 2
