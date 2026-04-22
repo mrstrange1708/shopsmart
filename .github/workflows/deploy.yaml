@@ -116,9 +116,46 @@ jobs:
           terraform_version: "1.7.0"
           terraform_wrapper: false
 
+      # ─── Bootstrap: Ensure S3 bucket exists before init ─────
+      - name: Bootstrap S3 backend
+        run: |
+          BUCKET="s3-shopsmart-devops-project"
+          REGION="${{ secrets.AWS_REGION }}"
+
+          if aws s3api head-bucket --bucket "$BUCKET" 2>/dev/null; then
+            echo "✅ S3 bucket already exists"
+          else
+            echo "🔨 Creating S3 bucket for Terraform state..."
+            aws s3api create-bucket --bucket "$BUCKET" --region "$REGION"
+            aws s3api put-bucket-versioning --bucket "$BUCKET" \
+              --versioning-configuration Status=Enabled
+            aws s3api put-bucket-encryption --bucket "$BUCKET" \
+              --server-side-encryption-configuration \
+              '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"AES256"}}]}'
+            aws s3api put-public-access-block --bucket "$BUCKET" \
+              --public-access-block-configuration \
+              'BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true'
+            echo "✅ S3 bucket created with versioning, encryption, and public access blocked"
+          fi
+
       - name: Terraform Init
         run: terraform init
         working-directory: terraform
+
+      # ─── Import S3 resources if not already in state ────────
+      - name: Import existing resources
+        working-directory: terraform
+        run: |
+          BUCKET="s3-shopsmart-devops-project"
+          # Import S3 bucket + config if not already tracked by Terraform
+          terraform import -var="aws_region=${{ secrets.AWS_REGION }}" \
+            aws_s3_bucket.terraform_state "$BUCKET" 2>/dev/null || true
+          terraform import -var="aws_region=${{ secrets.AWS_REGION }}" \
+            aws_s3_bucket_versioning.terraform_state "$BUCKET" 2>/dev/null || true
+          terraform import -var="aws_region=${{ secrets.AWS_REGION }}" \
+            aws_s3_bucket_server_side_encryption_configuration.terraform_state "$BUCKET" 2>/dev/null || true
+          terraform import -var="aws_region=${{ secrets.AWS_REGION }}" \
+            aws_s3_bucket_public_access_block.terraform_state "$BUCKET" 2>/dev/null || true
 
       - name: Terraform Validate
         run: terraform validate
@@ -136,7 +173,6 @@ jobs:
         id: tf_outputs
         working-directory: terraform
         run: |
-          # Refresh state to ensure outputs are available
           terraform refresh -var="aws_region=${{ secrets.AWS_REGION }}"
 
           ECR_SERVER=$(terraform output -raw ecr_server_url)
