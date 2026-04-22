@@ -15,11 +15,11 @@ terraform {
   # Remote state in S3 — initialized after the bucket is created
   # On first run, comment this block out, run `terraform apply` to create
   # the S3 bucket, then uncomment and run `terraform init -migrate-state`
-  # backend "s3" {
-  #   bucket = "s3-shopsmart-devops-project"
-  #   key    = "terraform/state.tfstate"
-  #   region = "us-east-1"
-  # }
+  backend "s3" {
+    bucket = "s3-shopsmart-devops-project"
+    key    = "terraform/state.tfstate"
+    region = "us-east-1"
+  }
 }
 
 provider "aws" {
