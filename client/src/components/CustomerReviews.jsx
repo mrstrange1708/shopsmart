@@ -12,7 +12,7 @@ const reviews = [
         name: 'James Rodriguez',
         initials: 'JR',
         role: 'Software Engineer',
-        rating: 5,
+        rating: 2,
         text: 'Bought the mechanical keyboard and wireless mouse combo. The build quality is premium and the RGB lighting is subtle yet beautiful. ShopSmart is my go-to now.',
     },
     {
