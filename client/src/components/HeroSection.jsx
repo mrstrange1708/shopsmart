@@ -37,7 +37,7 @@ const HeroSection = () => {
                                 href="#products"
                                 className="inline-flex items-center gap-3 bg-white text-black px-8 py-4 text-xs font-medium uppercase tracking-[0.2em] hover:bg-luxury-gold hover:text-black transition-all duration-300"
                             >
-                                Explore Collection
+                                Explore Collections 
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     className="h-4 w-4"
